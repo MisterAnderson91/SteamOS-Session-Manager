@@ -32,9 +32,9 @@ class SessionSelector(QWidget):
         layout.addWidget(self.btn_desktop)
         
         # Exit Button
+        layout.addSpacing(10)
         self.btn_exit = QPushButton("Exit")
         self.btn_exit.clicked.connect(self.close)
-        self.btn_exit.setStyleSheet("margin-top: 10px;")
         layout.addWidget(self.btn_exit)
         
         # About Layout (Bottom Right)
