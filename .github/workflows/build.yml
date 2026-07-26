@@ -1,0 +1,51 @@
+name: Build AppImage
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch: # Allows you to run the build manually from the Actions tab
+
+# Grants the workflow permission to create a Release
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11' # Matches the standard SteamOS Python version
+
+      - name: Generate CalVer
+        id: calver
+        run: |
+          # Generates a date string like 2026.07.27
+          CALVER=$(date +'%Y.%m.%d')
+          echo "VERSION=$CALVER" >> $GITHUB_ENV
+
+      - name: Build AppImage
+        run: |
+          # Ensure your local script name matches this command perfectly
+          chmod +x make_appimage.sh
+          ./make_appimage.sh
+
+      - name: Rename AppImage to include CalVer
+        run: |
+          mv SteamOS_Session_Manager-x86_64.AppImage SteamOS_Session_Manager-${{ env.VERSION }}-x86_64.AppImage
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.VERSION }}
+          name: SteamOS Session Manager ${{ env.VERSION }}
+          files: SteamOS_Session_Manager-${{ env.VERSION }}-x86_64.AppImage
+          draft: false
+          prerelease: false
