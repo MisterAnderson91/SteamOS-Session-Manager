@@ -6,9 +6,7 @@ A lightweight GUI for SteamOS to manage your default boot state (Game Mode vs. D
 
 ## Features
 * **Set Boot Mode:** Boot directly to Game Mode or Desktop Mode on startup.
-* **Live Status:** Displays your currently configured boot mode.
-* **X11 Reset:** Detects X11 desktop sessions and offers a 1-click reset to the default Wayland session (`plasma.desktop`).
-* **Portable:** Distributed as a single `.AppImage` executable.
+* **Current Status:** Displays your currently configured boot mode.
 
 ## Usage
 1. Download the latest `.AppImage` from the [Releases page](https://github.com/MisterAnderson91/SteamOS-Session-Manager/releases).
@@ -21,6 +19,18 @@ Python 3 is required. The included script sets up an isolated environment and bu
     cd SteamOS-Session-Manager
     chmod +x make-appimage.sh
     ./make-appimage.sh
+
+## Manual Session Selection
+If you wish to change the current session on SteamOS without downloading this app, use the commands below in Konsole in Desktop Mode:
+
+Boot into Game Mode:
+    steamosctl set-default-login-mode game
+
+Boot into Desktop Mode
+    steamosctl set-default-login-mode desktop
+
+Check the current setting:
+    steamosctl get-default-login-mode
 
 ## License
 This project is licensed under the [GNU General Public License v3.0 (GPLv3)](LICENSE).
