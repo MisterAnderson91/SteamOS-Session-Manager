@@ -15,22 +15,30 @@ A lightweight GUI for SteamOS to manage your default boot state (Game Mode vs. D
 ## Building from Source
 Python 3 is required. The included script sets up an isolated environment and builds the AppImage automatically.
 
-    git clone https://github.com/MisterAnderson91/SteamOS-Session-Manager.git
-    cd SteamOS-Session-Manager
-    chmod +x make-appimage.sh
-    ./make-appimage.sh
+```bash
+git clone https://github.com/MisterAnderson91/SteamOS-Session-Manager.git
+cd SteamOS-Session-Manager
+chmod +x make-appimage.sh
+./make-appimage.sh
+```
 
 ## Manual Session Selection
 If you wish to change the current session on SteamOS without downloading this app, use the commands below in Konsole in Desktop Mode:
 
 Boot into Game Mode:
-    steamosctl set-default-login-mode game
+```bash
+steamosctl set-default-login-mode game
+```
 
-Boot into Desktop Mode
-    steamosctl set-default-login-mode desktop
-
+Boot into Desktop Mode:
+```bash
+steamosctl set-default-login-mode desktop
+```
+    
 Check the current setting:
-    steamosctl get-default-login-mode
+```bash
+steamosctl get-default-login-mode
+```
 
 ## License
 This project is licensed under the [GNU General Public License v3.0 (GPLv3)](LICENSE).
