@@ -1,17 +1,45 @@
 import sys
+import json
+import urllib.request
 import subprocess
+from PyQt6.QtCore import Qt, QThread, pyqtSignal
 from PyQt6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout,
                              QPushButton, QLabel, QMessageBox)
-from PyQt6.QtCore import Qt
+
+class UpdateCheckerThread(QThread):
+    update_checked = pyqtSignal(str, str)
+
+    def __init__(self, repo_owner, repo_name, current_version):
+        super().__init__()
+        self.repo_owner = repo_owner
+        self.repo_name = repo_name
+        self.current_version = current_version
+
+    def run(self):
+        url = f"https://api.github.com/repos/{self.repo_owner}/{self.repo_name}/releases/latest"
+        try:
+            req = urllib.request.Request(
+                url, 
+                headers={"User-Agent": "SteamOS-Session-Manager-Updater"}
+            )
+            with urllib.request.urlopen(req, timeout=4) as response:
+                data = json.loads(response.read().decode())
+                latest_tag = data.get("tag_name", "").strip()
+                html_url = data.get("html_url", "").strip()
+                if latest_tag and latest_tag != self.current_version:
+                    self.update_checked.emit(latest_tag, html_url)
+        except Exception:
+            pass
 
 class SessionSelector(QWidget):
     def __init__(self):
         super().__init__()
+        self.current_app_version = "2026.07.27"
         self.initUI()
         
     def initUI(self):
         self.setWindowTitle('SteamOS Session Manager')
-        self.setFixedSize(350, 220) # Increased height to fit the About button
+        self.setFixedSize(350, 220)
         
         layout = QVBoxLayout()
         layout.setSpacing(10)
@@ -37,20 +65,49 @@ class SessionSelector(QWidget):
         self.btn_exit.clicked.connect(self.close)
         layout.addWidget(self.btn_exit)
         
-        # About Layout (Bottom Right)
+        # Bottom Layout (Update notification on left, About button on right)
         about_layout = QHBoxLayout()
-        about_layout.addStretch() # Pushes the button to the right
+        
+        # Update Notification Label (Hidden by default)
+        self.update_label = QLabel()
+        self.update_label.setStyleSheet("color: #4da6ff; font-weight: bold;")
+        self.update_label.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.update_label.hide()
+        about_layout.addWidget(self.update_label)
+        
+        about_layout.addStretch() # Pushes About button to the right
         
         self.about_button = QPushButton("About")
         self.about_button.setFlat(True) 
-        # Apply CSS to make the text lower contrast (grey)
         self.about_button.setStyleSheet("color: #888888;") 
         self.about_button.clicked.connect(self.show_about)
-        
         about_layout.addWidget(self.about_button)
-        layout.addLayout(about_layout)
         
+        layout.addLayout(about_layout)
         self.setLayout(layout)
+
+        # Trigger background update check safely after UI loads
+        self.start_update_check("MisterAnderson91", "SteamOS-Session-Manager")
+
+    def start_update_check(self, owner, repo):
+        self.update_thread = UpdateCheckerThread(owner, repo, self.current_app_version)
+        self.update_thread.update_checked.connect(self.display_update_notification)
+        self.update_thread.start()
+
+    def display_update_notification(self, latest_version, url):
+        self.release_url = url
+        self.update_label.setText(f"🚀 Update v{latest_version} available!")
+        self.update_label.mousePressEvent = lambda event: self.open_url(self.release_url)
+        self.update_label.show()
+
+    def open_url(self, url):
+        env = os.environ.copy() if 'os' in sys.modules else {}
+        for k in ["LD_LIBRARY_PATH", "APPDIR", "APPIMAGE"]:
+            env.pop(k, None)
+        try:
+            subprocess.Popen(["xdg-open", url], env=env)
+        except Exception:
+            pass
         
     def show_about(self):
         about_text = (
@@ -66,7 +123,6 @@ class SessionSelector(QWidget):
 
     def get_current_mode(self):
         try:
-            # Query steamosctl for the current default login mode
             result = subprocess.run(["steamosctl", "get-default-login-mode"], 
                                     capture_output=True, text=True, check=True)
             mode = result.stdout.strip()
@@ -86,14 +142,12 @@ class SessionSelector(QWidget):
             return "Unknown"
 
     def set_mode(self, mode_arg, mode_name):
-        # If setting to Desktop Mode, check for X11 first
         if mode_arg == "desktop":
             try:
                 result = subprocess.run(["steamosctl", "get-default-desktop-session"], 
                                         capture_output=True, text=True, check=True)
                 current_session = result.stdout.strip()
                 
-                # Check if it's explicitly plasmax11.desktop or contains x11
                 if "x11" in current_session.lower() or "plasmax11.desktop" in current_session.lower():
                     reply = QMessageBox.question(
                         self,
@@ -108,18 +162,13 @@ class SessionSelector(QWidget):
                         QMessageBox.information(self, "Session Updated", "Desktop session successfully reset to plasma.desktop.")
             
             except FileNotFoundError:
-                pass # If steamosctl is missing, let the main block below handle the error gracefully
+                pass 
             except Exception:
-                pass # Fail silently here so it still proceeds to change the login mode
+                pass 
 
-        # Proceed to set the actual login mode
         try:
             subprocess.run(["steamosctl", "set-default-login-mode", mode_arg], check=True)
-            
-            # Refresh the status label
             self.status_label.setText(f"Current Boot Mode: {self.get_current_mode()}")
-            
-            # Notify the user
             QMessageBox.information(
                 self, 
                 "Mode Updated", 
