@@ -1,6 +1,6 @@
 # SteamOS Session Manager
 
-[![Build AppImage](https://github.com/MisterAnderson91/SteamOS-Session-Manager/actions/workflows/build.yml/badge.svg)](https://github.com/MisterAnderson91/SteamOS-Session-Manager/actions)
+[![Build AppImage](https://github.com/MisterAnderson91/SteamOS-Session-Manager/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/MisterAnderson91/SteamOS-Session-Manager/actions)
 
 A lightweight GUI for SteamOS to manage your default boot state (Game Mode vs. Desktop Mode) using native `steamosctl` commands.
 
