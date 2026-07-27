@@ -3,8 +3,7 @@ name: Build AppImage
 on:
   push:
     branches:
-      - main
-      - master
+      - "**"
     paths-ignore:
       - 'LICENSE'
       - 'README.md'
@@ -45,11 +44,18 @@ jobs:
         run: |
           mv SteamOS_Session_Manager-x86_64.AppImage SteamOS_Session_Manager-${{ env.VERSION }}-x86_64.AppImage
 
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SteamOS-Session-Manager-${{ env.VERSION }}-${{ github.ref_name }}
+          path: SteamOS_Session_Manager-${{ env.VERSION }}-x86_64.AppImage
+
       - name: Create GitHub Release
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.VERSION }}
           name: SteamOS Session Manager ${{ env.VERSION }}
           files: SteamOS_Session_Manager-${{ env.VERSION }}-x86_64.AppImage
-          draft: true
+          draft: false
           prerelease: false
