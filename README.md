@@ -18,8 +18,8 @@ Python 3 is required. The included script sets up an isolated environment and bu
 ```bash
 git clone https://github.com/MisterAnderson91/SteamOS-Session-Manager.git
 cd SteamOS-Session-Manager
-chmod +x make-appimage.sh
-./make-appimage.sh
+chmod +x make_appimage.sh
+./make_appimage.sh
 ```
 
 ## Manual Session Selection
