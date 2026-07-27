@@ -5,6 +5,10 @@ on:
     branches:
       - main
       - master
+    paths-ignore:
+      - 'LICENSE'
+      - 'README.md'
+      - '.github/workflows/build.yml'
   workflow_dispatch: # Allows you to run the build manually from the Actions tab
 
 # Grants the workflow permission to create a Release
