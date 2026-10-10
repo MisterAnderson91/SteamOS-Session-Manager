@@ -1,7 +1,10 @@
 # THIS FUNCTIONALITY HAS BEEN INTRODUCED INTO THE STEAMOS UI (STABLE UPDATE) AS OF AT LEAST 2026-10-10
 
+
 GAME MODE: Settings -> General -> Default to Desktop Mode on startup
+
 DESKTOP MODE: Open Steam -> Settings -> Interface Default to Desktop Mode on startup
+
 
 As the goal of this app was to provide help changing this setting from a UI until it received an option in the official UI, I do not plan to introduce any further updates to this app. It can still be used as of 2026-10-10, and it simply changes the same toggle as the Steam UI option does, but it may eventually stop working.
 
